@@ -68,32 +68,16 @@
                     </div>
                     <div class="modal-body">
                         <form action="/peminjaman/{{ $item->id }}" method="post">
-                            @method('put') <!-- Menggunakan method PUT untuk update data -->
-                            @csrf <!-- Token CSRF untuk keamanan -->
+                            @method('put')
+                            @csrf
 
                             <div class="modal-body">
                                 <p>Apakah anda yakin akan menyelesaikan peminjaman?</p>
 
-                                <!-- Hidden Inputs -->
-                                <input hidden type="text" class="form-control" id="id" name="id"
-                                    value="{{ $item->id }}">
-                                <input hidden type="text" class="form-control" id="id_barang" name="id_barang"
-                                    value="{{ $item->barang->id }}">
-                                <input hidden type="text" class="form-control" id="nama_peminjam" name="nama_peminjam"
-                                    value="{{ $item->nama_peminjam }}">
-                                <input hidden type="text" class="form-control" id="nama_barang" name="nama_barang"
-                                    value="{{ $item->barang->nama_barang }}">
-                                <input hidden type="text" class="form-control" id="jumlah_pinjam" name="jumlah_pinjam"
-                                    value="{{ $item->jumlah_pinjam }}">
-                                <input hidden type="text" class="form-control" id="tgl_pinjam" name="tgl_pinjam"
-                                    value="{{ $item->created_at }}">
-                                <input hidden type="text" class="form-control" id="keperluan" name="keperluan"
-                                    value="{{ $item->keperluan }}">
-
                                 <!-- Input untuk Jumlah Barang Rusak -->
                                 <div class="form-group">
                                     <label for="qty_rusak">Jumlah Barang Rusak</label>
-                                    <input type="number" class="form-control" id="qty_rusak" name="qty_rusak"
+                                    <input type="number" class="form-control" name="qty_rusak"
                                         placeholder="Masukkan jumlah barang rusak" min="0">
                                 </div>
                             </div>
@@ -223,7 +207,7 @@
                             $.ajax({
                                 type: "DELETE",
                                 url: '/pengembalian/destroy/' +
-                                deleteid, // Make sure URL matches the route
+                                    deleteid, // Make sure URL matches the route
                                 data: data,
                                 success: function(response) {
                                     // Show success message and reload the page
@@ -231,7 +215,7 @@
                                         icon: "success",
                                     }).then((result) => {
                                         location
-                                    .reload(); // Reload the page after successful deletion
+                                            .reload(); // Reload the page after successful deletion
                                     });
                                 },
                                 error: function() {

@@ -3,19 +3,15 @@
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\CetakController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LayoutController;
-use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PeminjamController;
 use App\Http\Controllers\PengembalianController;
-use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\KepalaController;
 use App\Http\Controllers\BrgKepalaController;
 use App\Http\Controllers\PgjKepalaController;
 use Illuminate\Support\Facades\Route;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +30,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/sesi/login', [SessionController::class, 'login']);
 });
 
-
 Route::middleware('auth')->group(function () {
     Route::get('/sesi/logout', [SessionController::class, 'logout']);
 
@@ -44,7 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('/barang', BarangController::class);
     Route::resource('/barangkepala', BrgKepalaController::class)->only('index');
     Route::resource('/peminjaman', PeminjamanController::class)->except('show');
-    Route::resource('/pengembalian', PengembalianController::class)->only('index', 'destroy');
+    Route::resource('/pengembalian', PengembalianController::class)->only('destroy');
 
     // tambahan
     Route::resource('/pengajuan', PengajuanController::class);
