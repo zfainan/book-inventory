@@ -42,9 +42,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('/dashboard', DashboardController::class)->only('index');
     Route::resource('/dashboardkepala', KepalaController::class)->only('index');
     Route::resource('/barang', BarangController::class);
-    Route::resource('/barangkepala', BrgKepalaController::class);
-    Route::resource('/peminjaman', PeminjamanController::class);
-    Route::resource('/pengembalian', PengembalianController::class);
+    Route::resource('/barangkepala', BrgKepalaController::class)->only('index');
+    Route::resource('/peminjaman', PeminjamanController::class)->except('show');
+    Route::resource('/pengembalian', PengembalianController::class)->only('index', 'destroy');
 
     // tambahan
     Route::resource('/pengajuan', PengajuanController::class);
@@ -69,5 +69,4 @@ Route::middleware('auth')->group(function () {
     // pengembalian
     Route::delete('/pengembalian/destroy/{id}', [PengembalianController::class, 'destroy'])
         ->name('pengembalian.destroy');
-    Route::post('/barang', [BarangController::class, 'store']);
 });

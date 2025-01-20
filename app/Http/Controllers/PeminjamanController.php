@@ -24,9 +24,9 @@ class PeminjamanController extends Controller
         $barang = Barang::all();
         $pengembalian = Pengembalian::all();
         $peminjaman = Peminjaman::all();
-        $datas = Pengembalian::latest()->paginate();
+        $datap = Pengembalian::latest()->paginate();
         $data = Peminjaman::latest()->paginate();
-        return view('peminjaman.index',compact('datas','data','peminjaman', 'pengembalian', 'barang'));
+        return view('peminjaman.index', compact('datap', 'data', 'peminjaman', 'pengembalian', 'barang'));
     }
     /**
      * Show the form for creating a new resource.
@@ -37,7 +37,7 @@ class PeminjamanController extends Controller
     {
         $peminjam = Peminjam::all();
         $data = Barang::all();
-        return view('peminjaman.create',compact('data','peminjam'));
+        return view('peminjaman.create', compact('data', 'peminjam'));
     }
 
     /**
@@ -47,13 +47,13 @@ class PeminjamanController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {    
-        $validator = Validator::make($request->all(),[
+    {
+        $validator = Validator::make($request->all(), [
             'nama_peminjam' => 'required',
             'nama_barang' => 'required',
             'jumlah_pinjam' => 'required|digits_between:0,99999',
             'keperluan' => 'required',
-        ],[
+        ], [
             'nama_peminjam.required' => 'Field nama peminjam tidak boleh kosong !',
             'nama_barang.required' => 'Field nama barang tidak boleh kosong !',
             'jumlah_pinjam.required' => 'Field jumlah pinjam tidak boleh kosong !',
@@ -61,42 +61,31 @@ class PeminjamanController extends Controller
             'keperluan.required' => 'Field keperluan tidak boleh kosong !',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return redirect()->to('/peminjaman/create')->withErrors($validator)->withInput();
-     }else{
-        $barang = Barang::find($request->nama_barang);
-        $qty = $barang->qty;
-        $pinjam = intval( $request->jumlah_pinjam);
-
-        if($qty>=$pinjam){
+        } else {
             $barang = Barang::find($request->nama_barang);
-            $barang->qty -= $request->jumlah_pinjam;        
-            $barang->update();    
-        }else{
-            return redirect()->to('/peminjaman/create')->withErrors(['Error'=>'Jumlah pinjam tidak boleh lebih dari stok yang ada !'])->withInput();
-                }
+            $qty = $barang->qty;
+            $pinjam = intval($request->jumlah_pinjam);
+
+            if ($qty >= $pinjam) {
+                $barang = Barang::find($request->nama_barang);
+                $barang->qty -= $request->jumlah_pinjam;
+                $barang->update();
+            } else {
+                return redirect()->to('/peminjaman/create')->withErrors(['Error' => 'Jumlah pinjam tidak boleh lebih dari stok yang ada !'])->withInput();
+            }
             Peminjaman::create([
-            'nama_peminjam' => $request->nama_peminjam,
-            'barang_id' => $request->nama_barang,
-            'nama_barang' => $request->nama_barang,
-            'jumlah_pinjam' => $request->jumlah_pinjam,
-            'nama_barang' => $request->nama_barang,
-            'keperluan' => $request->keperluan,
-        ]);
-        
-        return redirect('/peminjaman')->with('success', 'Data berhasil ditambahkan !');
-}
-        
-    }
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+                'nama_peminjam' => $request->nama_peminjam,
+                'barang_id' => $request->nama_barang,
+                'nama_barang' => $request->nama_barang,
+                'jumlah_pinjam' => $request->jumlah_pinjam,
+                'nama_barang' => $request->nama_barang,
+                'keperluan' => $request->keperluan,
+            ]);
+
+            return redirect('/peminjaman')->with('success', 'Data berhasil ditambahkan !');
+        }
     }
 
     /**
@@ -107,8 +96,8 @@ class PeminjamanController extends Controller
      */
     public function edit($id)
     {
-            $peminjaman = Peminjaman::findoirfile($id);
-            return view('peminjaman.index', compact('peminjaman'));
+        $peminjaman = Peminjaman::findoirfile($id);
+        return view('peminjaman.index', compact('peminjaman'));
     }
 
     /**
@@ -124,7 +113,7 @@ class PeminjamanController extends Controller
         $request->validate([
             'qty_rusak' => 'nullable|integer|min:0',
         ]);
-    
+
         // Simpan data pengembalian
         Pengembalian::create([
             'nama_peminjam' => $request->nama_peminjam,
@@ -134,22 +123,22 @@ class PeminjamanController extends Controller
             'tgl_pinjam' => $request->tgl_pinjam,
             'keperluan' => $request->keperluan,
         ]);
-    
+
         // Update jumlah barang rusak di tabel Barang
         if ($request->has('qty_rusak')) {
             // Ambil nilai qty_rusak yang sudah ada di database
             $barang = DB::table('barang')->where('id', $request->id_barang)->first();
-            
+
             // Jika qty_rusak ada, tambahkan dengan qty_rusak baru dari request
             $newQtyRusak = $barang->qty_rusak + $request->qty_rusak;
-        
+
             // Update nilai qty_rusak dengan penambahan yang baru
             DB::table('barang')
                 ->where('id', $request->id_barang) // Menyesuaikan dengan input ID barang
                 ->update(['qty_rusak' => $newQtyRusak]);
         }
-        
-    
+
+
         // Mengupdate jumlah stok barang
         $barang = Barang::find($request->id_barang);
         if ($barang) {
@@ -157,16 +146,15 @@ class PeminjamanController extends Controller
             $barang->qty = ($barang->qty + $request->jumlah_pinjam) - ($request->qty_rusak ?? 0);
             $barang->save();
         }
-    
+
         // Hapus data peminjaman setelah selesai
         Peminjaman::destroy($peminjaman->id);
-    
+
         // Redirect ke halaman peminjaman dengan pesan sukses
         return redirect('/peminjaman')->with('success', 'Peminjaman berhasil diselesaikan!');
-
     }
-    
-    
+
+
 
     /**
      * Remove the specified resource from storage.
