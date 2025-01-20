@@ -148,14 +148,13 @@ class BarangController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  Barang  $barang
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Barang $barang)
     {
-        $barang = Barang::find($id);
         $barang->delete();
 
-        return redirect('/barang')->with('succes', 'Data Berhasil di hapus!');
+        return redirect('/barang')->with('success', 'Data Berhasil di hapus!');
     }
 }

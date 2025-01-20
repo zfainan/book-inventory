@@ -43,8 +43,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('/dashboardkepala', KepalaController::class)->only('index');
     Route::resource('/barang', BarangController::class);
     Route::resource('/barangkepala', BrgKepalaController::class);
-    Route::delete('barang/destroy/{id}', [BarangController::class, 'destroy'])
-        ->name('barang.destroy');
     Route::resource('/peminjaman', PeminjamanController::class);
     Route::resource('/pengembalian', PengembalianController::class);
 
