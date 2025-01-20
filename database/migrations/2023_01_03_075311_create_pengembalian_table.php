@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('pengembalian', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('barang_id')
+                ->references('id')
+                ->on('barang')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('nama_peminjam');
             $table->string('nama_barang');
             $table->integer('jumlah_pinjam');

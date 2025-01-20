@@ -15,7 +15,7 @@ class BarangController extends Controller
      */
     public function index()
     {
-        $data = Barang::groupBy('kode_barang', 'nama_barang', 'pengarang', 'penerbit', 'asal', 'jenis_buku', 'rusak', 'type')
+        $data = Barang::groupBy('kode_barang', 'nama_barang', 'pengarang', 'penerbit', 'asal', 'jenis_buku', 'type')
             ->select(
                 'kode_barang',
                 'nama_barang',
@@ -23,7 +23,6 @@ class BarangController extends Controller
                 'penerbit',
                 'asal',
                 'jenis_buku',
-                'rusak',
                 'type',
                 DB::raw('COUNT(*) as qty')
             )

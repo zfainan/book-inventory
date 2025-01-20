@@ -18,8 +18,8 @@
                 <tr class="bg-primary">
                     <th scope="col">NO</th>
                     <th scope="col">NAMA PEMINJAM</th>
+                    <th scope="col">KODE BUKU</th>
                     <th scope="col">JUDUL BUKU</th>
-                    <th scope="col">JUMLAH PINJAM</th>
                     <th scope="col">TGL PINJAM</th>
                     <th scope="col">KEPERLUAN</th>
                     <th scope="col">STATUS</th>
@@ -27,15 +27,15 @@
                 </tr>
             </thead>
             <tbody>
-                @if (count($data))
-                    @foreach ($data as $items => $item)
+                @if (count($peminjaman))
+                    @foreach ($peminjaman as $items => $item)
                         @csrf
                         <tr>
                             <input type="hidden" class="delete_id" value="{{ $item->id }}">
-                            <th>{{ $items + $data->firstItem() }}</th>
+                            <th>{{ $loop->iteration }}</th>
                             <td>{{ $item->nama_peminjam }}</td>
+                            <td>{{ $item->barang->inventory_code }}</td>
                             <td>{{ $item->barang->nama_barang }}</td>
-                            <td>{{ $item->jumlah_pinjam }}</td>
                             <td>{{ $item->created_at }}</td>
                             <td>{{ $item->keperluan }}</td>
                             <td>
@@ -56,42 +56,48 @@
     </div>
 
     {{-- update barang --}}
-    @foreach ($data as $item)
-        <div class="modal fade" id="exampleModal-{{ $item->id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
+    @foreach ($peminjaman as $item)
+        <div class="modal fade" id="exampleModal-{{ $item->id }}" tabindex="-1"
+            aria-labelledby="exampleModal-{{ $item->id }}Label" aria-hidden="true">
+            <div class="modal-dialog">
+                <form action="/peminjaman/{{ $item->id }}" method="post" class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Konfirmasi <span
+                        <h1 class="modal-title fs-5" id="exampleModal-{{ $item->id }}">Konfirmasi <span
                                 data-feather="alert-circle"></span> </h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/peminjaman/{{ $item->id }}" method="post">
-                            @method('put')
-                            @csrf
+                        @method('put')
+                        @csrf
 
-                            <div class="modal-body">
-                                <p>Apakah anda yakin akan menyelesaikan peminjaman?</p>
+                        <p>Apakah anda yakin akan menyelesaikan peminjaman barang {{ $item->barang->inventory_code }}?</p>
 
-                                <!-- Input untuk Jumlah Barang Rusak -->
-                                <div class="form-group">
-                                    <label for="qty_rusak">Jumlah Barang Rusak</label>
-                                    <input type="number" class="form-control" name="qty_rusak"
-                                        placeholder="Masukkan jumlah barang rusak" min="0">
-                                </div>
+                        <!-- Input untuk Jumlah Barang Rusak -->
+                        <div class="form-group">
+                            <label for="rusak">Kondisi</label>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="rusak" id="ok" value="0"
+                                    checked>
+                                <label class="form-check-label" for="ok">
+                                    Baik
+                                </label>
                             </div>
-
-                            <!-- Modal Footer -->
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Selesaikan</button>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="rusak" id="not_oke" value="1">
+                                <label class="form-check-label" for="not_oke">
+                                    Rusak
+                                </label>
                             </div>
-                        </form>
-
+                        </div>
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Selesaikan</button>
+                    </div>
+                </form>
             </div>
+        </div>
     @endforeach
 @endsection
 
@@ -125,12 +131,11 @@
                         </thead>
 
                         <tbody>
-                            @if (count($datap))
-                                <?php $i = $datap->firstItem(); ?>
-                                @foreach ($datap as $items => $item)
+                            @if (count($pengembalian))
+                                @foreach ($pengembalian as $items => $item)
                                     <tr>
                                         <input type="hidden" class="delete_id" value="{{ $item->id }}">
-                                        <th>{{ $i++ }}</th>
+                                        <th>{{ $loop->iteration }}</th>
                                         <td>{{ $item->nama_peminjam }}</td>
                                         <td>{{ $item->nama_barang }}</td>
                                         <td>{{ $item->jumlah_pinjam }}</td>

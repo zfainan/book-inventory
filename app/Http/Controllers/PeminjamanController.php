@@ -19,12 +19,10 @@ class PeminjamanController extends Controller
      */
     public function index()
     {
-        $barang = Barang::all();
-        $pengembalian = Pengembalian::all();
-        $peminjaman = Peminjaman::all();
-        $datap = Pengembalian::latest()->paginate();
-        $data = Peminjaman::latest()->paginate();
-        return view('peminjaman.index', compact('datap', 'data', 'peminjaman', 'pengembalian', 'barang'));
+        $peminjaman = Peminjaman::with('barang')->latest()->get();
+        $pengembalian = Pengembalian::with('barang')->latest()->get();
+
+        return view('peminjaman.index', compact('peminjaman', 'pengembalian'));
     }
     /**
      * Show the form for creating a new resource.
@@ -34,7 +32,7 @@ class PeminjamanController extends Controller
     public function create()
     {
         $peminjam = Peminjam::all();
-        $data = Barang::all();
+        $data = Barang::where('rusak', false)->whereDoesntHave('peminjaman')->get();
 
         return view('peminjaman.create', compact('data', 'peminjam'));
     }
@@ -49,15 +47,12 @@ class PeminjamanController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id_peminjam' => 'required|numeric|exists:peminjam,id',
-            'id_barang' => 'required|numeric|exists:barang,id',
-            'jumlah_pinjam' => 'required|numeric|min:0|max:99999',
+            'id_barang' => 'required|array',
+            'id_barang.*' => 'required|numeric|exists:barang,id',
             'keperluan' => 'required',
         ], [
             'id_peminjam.required' => 'Field nama peminjam tidak boleh kosong!',
             'id_barang.required' => 'Field nama barang tidak boleh kosong!',
-            'jumlah_pinjam.required' => 'Field jumlah pinjam tidak boleh kosong!',
-            'jumlah_pinjam.min' => 'Jumlah pinjam minimal 1!',
-            'jumlah_pinjam.max' => 'Jumlah pinjam maksimal 99999!',
             'keperluan.required' => 'Field keperluan tidak boleh kosong!',
         ]);
 
@@ -66,25 +61,25 @@ class PeminjamanController extends Controller
         }
 
         $peminjam = Peminjam::findOrFail($request->id_peminjam);
-        $barang = Barang::findOrFail($request->id_barang);
-        $pinjam = $request->integer('jumlah_pinjam');
+        $items = Barang::with('peminjaman')->whereIn('id', $request->get('id_barang'))->get();
 
-        if ($barang->qty < $pinjam) {
-            return redirect()->to('/peminjaman/create')->withErrors(['Error' => 'Jumlah pinjam tidak boleh lebih dari stok yang ada !'])->withInput();
-        }
+        DB::transaction(function () use ($items, $peminjam, $request) {
+            foreach ($items as $barang) {
+                if ($barang->rusak) {
+                    return;
+                }
 
-        DB::transaction(function () use ($barang, $pinjam, $peminjam, $request) {
-            $barang->update([
-                'qty' => $barang->qty - $pinjam,
-            ]);
+                if ($barang->peminjaman?->id) {
+                    return;
+                }
 
-            Peminjaman::create([
-                'barang_id' => $barang->id,
-                'nama_peminjam' => $peminjam->nama,
-                'nama_barang' => $barang->nama_barang,
-                'jumlah_pinjam' => $pinjam,
-                'keperluan' => $request->get('keperluan'),
-            ]);
+                (new Peminjaman())->fill([
+                    'nama_peminjam' => $peminjam->nama,
+                    'nama_barang' => $barang->nama_barang,
+                    'keperluan' => $request->get('keperluan'),
+                    'jumlah_pinjam' => 1,
+                ])->barang()->associate($barang)->save();
+            }
         });
 
         return redirect('/peminjaman')->with('success', 'Data berhasil ditambahkan !');
@@ -113,31 +108,26 @@ class PeminjamanController extends Controller
     {
         // Validasi input
         $request->validate([
-            'qty_rusak' => 'nullable|integer|min:0',
+            'rusak' => 'required|boolean',
         ]);
 
         try {
             DB::beginTransaction();
 
             // Simpan data pengembalian
-            Pengembalian::create([
-                'peminjaman_id' => $peminjaman->id,
+            (new Pengembalian())->fill([
                 'nama_peminjam' => $peminjaman->nama_peminjam,
                 'nama_barang' => $peminjaman->nama_barang,
                 'jumlah_pinjam' => $peminjaman->jumlah_pinjam,
                 'tgl_pinjam' => $peminjaman->created_at,
                 'keperluan' => $peminjaman->keperluan,
-            ]);
+            ])->barang()->associate($peminjaman->barang)->save();
 
-            if ($request->has('qty_rusak')) {
-                $peminjaman->barang->fill([
-                    'qty_rusak' => $peminjaman->barang->qty_rusak + $request->qty_rusak,
+            if ($request->boolean('rusak')) {
+                $peminjaman->barang->update([
+                    'rusak' => true,
                 ]);
             }
-
-            $peminjaman->barang?->fill([
-                'qty' => ($peminjaman->barang->qty + $peminjaman->jumlah_pinjam) - $request->integer('qty_rusak', 0),
-            ])->save();
 
             // Hapus data peminjaman setelah selesai
             Peminjaman::destroy($peminjaman->id);
