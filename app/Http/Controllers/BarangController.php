@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class BarangController extends Controller
 {
@@ -107,31 +108,6 @@ class BarangController extends Controller
         return redirect('/barang')->with('status', 'Data barang berhasil disimpan!');
     }
 
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Barang $barang)
-    {
-        return view('barang.edit', [
-            'barang' => $barang
-        ]);
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -141,43 +117,17 @@ class BarangController extends Controller
      */
     public function update(Request $request, Barang $barang)
     {
-
-        $this->validate($request, [
-            'nama_barang' => 'required',
-            'pengarang' => 'required',
-            'penerbit' => 'required',
-            'qty' => 'required|numeric',
-            'asal' => 'required',
-            'jenis_buku' => 'required',
+        $request->validate([
+            'rusak' => 'required|boolean',
         ], [
-            'kode_barang.unique' => 'Kode barang sudah ada tolong cek kembali',
-            'nama_barang.required' => 'Nama Barang wajib di isi',
-            'pengarang.required' => 'Nama Pengarang wajib di isi',
-            'penerbit.required' => 'Nama Penerbit wajib di isi',
-            'qty.required' => 'qty wajib di isi',
-            'asal.required' => 'Asal wajib di isi',
-            'jenis_buku.required' => 'Jenis Buku wajib di isi',
+            'rusak.boolean' => 'Kolom Kondisi harus berupa Baik atau Rusak',
         ]);
 
-        $rules = [
-            'nama_barang' => 'required',
-            'pengarang' => 'required',
-            'penerbit' => 'required',
-            'qty' => 'required|numeric',
-            'asal' => 'required',
-            'jenis_buku' => 'required',
-        ];
+        $barang->update([
+            'rusak' => $request->rusak,
+        ]);
 
-        if ($request->kode_barang != $barang->kode_barang) {
-            $rules['kode_barang'] = 'required|unique:barang|max:50';
-        }
-
-        $validateData = $request->validate($rules);
-
-        Barang::where('id', $barang->id)
-            ->update($validateData);
-
-        return Redirect('/barang')->with('success', 'Data berhasil diupdate !');
+        return redirect()->back()->with('success', 'Data berhasil diupdate !');
     }
 
     /**
@@ -190,6 +140,36 @@ class BarangController extends Controller
     {
         $barang->delete();
 
-        return redirect('/barang')->with('success', 'Data Berhasil di hapus!');
+        return redirect()->back()->with('success', 'Data Berhasil di hapus!');
+    }
+
+    public function bulkEdit(string $code)
+    {
+        return view('barang.edit', [
+            'barang' => Barang::where('kode_barang', $code)->first(),
+        ]);
+    }
+
+    public function bulkUpdate(Request $request, string $code)
+    {
+        $request->validate([
+            'kode_barang' => ['required', 'string', 'max:255', Rule::unique('barang', 'kode_barang')->ignore($code, 'kode_barang')],
+            'nama_barang' => 'required|string|max:255',
+            'pengarang' => 'nullable|string|max:255',
+            'penerbit' => 'nullable|string|max:255',
+            'jenis_buku' => 'nullable|string|max:255',
+            'asal' => 'nullable|string|max:255',
+        ]);
+
+        Barang::where('kode_barang', $code)->update([
+            'kode_barang' => $request->kode_barang,
+            'nama_barang' => $request->nama_barang,
+            'pengarang' => $request->pengarang,
+            'penerbit' => $request->penerbit,
+            'jenis_buku' => $request->jenis_buku,
+            'asal' => $request->asal,
+        ]);
+
+        return redirect(route('barang.code', ['code' => $request->kode_barang]))->with('success', 'Data berhasil diupdate!');
     }
 }

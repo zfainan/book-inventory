@@ -38,7 +38,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('/dashboardkepala', KepalaController::class)->only('index');
     Route::get('/barang/detail/{code}', [BarangController::class, 'code'])
         ->name('barang.code');
-    Route::resource('/barang', BarangController::class);
+    Route::get('/barang/detail/{code}/edit', [BarangController::class, 'bulkEdit'])
+        ->name('barang.bulk-code-edit');
+    Route::put('/barang/detail/{code}', [BarangController::class, 'bulkUpdate'])
+        ->name('barang.bulk-code-update');
+    Route::resource('/barang', BarangController::class)->except('show', 'edit');
     Route::resource('/barangkepala', BrgKepalaController::class)->only('index');
     Route::resource('/peminjaman', PeminjamanController::class)->except('show');
     Route::resource('/pengembalian', PengembalianController::class)->only('destroy');

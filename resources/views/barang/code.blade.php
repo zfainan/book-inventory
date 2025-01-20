@@ -6,6 +6,10 @@
     Data Buku
 @endsection
 @section('content')
+    <div class="d-flex">
+        <a href="{{ route('barang.bulk-code-edit', ['code' => $buku->kode_barang]) }}"
+            class="btn btn-primary mb-3 ms-auto ms-auto">Edit Data</a>
+    </div>
     <div class="row">
         <div class="col-lg-3 col-6">
             <div class="card">
@@ -135,8 +139,8 @@
                             <td>{{ $item->updated_at ?: '-' }}</td>
                             @can('admin')
                                 <td>
-                                    <a href="{{route('barang.edit', $item->id)}}" class="badge bg-primary border-0"><span
-                                            data-feather="edit-3"></span></a>
+                                    <button class="badge bg-primary btnedit border-0" data-bs-toggle="modal"
+                                        data-bs-target="#editModal"><span data-feather="edit-3"></span></button>
 
                                     <form id="delete-form-{{ $item->id }}"
                                         action="{{ route('barang.destroy', $item->id) }}" method="post" class="d-inline">
@@ -152,6 +156,45 @@
             </tbody>
             @endif
         </table>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="formEdit" action="" method="post" class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Edit</h1>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @method('put')
+                    @csrf
+
+                    <div class="form-group">
+                        <label for="rusak">Kondisi</label>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="rusak" id="ok" value="0"
+                                checked>
+                            <label class="form-check-label" for="ok">
+                                Baik
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="rusak" id="not_oke" value="1">
+                            <label class="form-check-label" for="not_oke">
+                                Rusak
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
@@ -178,6 +221,23 @@
                             form.submit();
                         }
                     });
+            });
+
+            $('.btnedit').click(function(e) {
+                const row = $(this).closest('tr');
+                const id = row.find('.delete_id').val();
+                const code = row.find('td').eq(0).text();
+                const rusak = row.find('td').eq(1).text() ===
+                    'Rusak';
+
+                $('#editModalLabel').text(`Edit ${code}`);
+
+                $('#formEdit').attr('action', `/barang/${id}`);
+                if (rusak) {
+                    $('#not_oke').prop('checked', true);
+                } else {
+                    $('#ok').prop('checked', true);
+                }
             });
         });
     </script>
