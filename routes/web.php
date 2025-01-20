@@ -36,8 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/home', '/dashboard');
     Route::resource('/dashboard', DashboardController::class)->only('index');
     Route::resource('/dashboardkepala', KepalaController::class)->only('index');
+    Route::get('/barang/detail/{code}', [BarangController::class, 'code'])
+        ->name('barang.code');
     Route::resource('/barang', BarangController::class);
-    Route::resource('/barangkepala', BarangController::class)->only('index');
+    Route::resource('/barangkepala', BrgKepalaController::class)->only('index');
     Route::resource('/peminjaman', PeminjamanController::class)->except('show');
     Route::resource('/pengembalian', PengembalianController::class)->only('destroy');
 

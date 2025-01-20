@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BarangController extends Controller
 {
@@ -14,8 +15,34 @@ class BarangController extends Controller
      */
     public function index()
     {
-        $data = Barang::latest()->paginate();
+        $data = Barang::groupBy('kode_barang', 'nama_barang', 'pengarang', 'penerbit', 'asal', 'jenis_buku', 'rusak', 'type')
+            ->select(
+                'kode_barang',
+                'nama_barang',
+                'pengarang',
+                'penerbit',
+                'asal',
+                'jenis_buku',
+                'rusak',
+                'type',
+                DB::raw('COUNT(*) as qty')
+            )
+            ->get();
+
         return view('barang.index', compact('data'));
+    }
+
+
+    public function code(string $code)
+    {
+        $data = Barang::with('peminjaman')
+            ->where('kode_barang', $code)
+            ->get();
+        $buku = $data->first();
+        $stock = $data->count();
+        $damaged = $data->where('rusak', true)->count();
+
+        return view('barang.code', compact('data', 'buku', 'stock', 'damaged'));
     }
 
     /**
@@ -48,25 +75,34 @@ class BarangController extends Controller
         ]);
 
         // Simpan data ke tabel barang
-        $barang = new Barang();
-        $barang->kode_barang = $request->kode_barang;
-        $barang->nama_barang = $request->nama_barang;
-        $barang->qty = $request->qty;
+        for ($i = 1; $i <= $request->integer('qty'); $i++) {
+            $barang = new Barang();
+            $barang->fill([
+                'kode_barang' => $request->kode_barang,
+                'nama_barang' => $request->nama_barang,
+                'qty' => 0,
+                'serial_number' => $request->integer('qty') > 1 ? $i : null,
+            ]);
 
-        // Simpan data yang spesifik untuk jenis barang Buku
-        if ($request->jenis_barang == 'Buku') {
-            $barang->pengarang = $request->pengarang;
-            $barang->penerbit = $request->penerbit;
-            $barang->jenis_buku = $request->jenis_buku;
+            // Simpan data yang spesifik untuk jenis barang Buku
+            if ($request->jenis_barang == 'Buku') {
+                $barang->fill([
+                    'pengarang' => $request->pengarang,
+                    'penerbit' => $request->penerbit,
+                    'jenis_buku' => $request->jenis_buku,
+                ]);
+            }
+
+            // Simpan data yang spesifik untuk jenis barang Elektronik
+            if ($request->jenis_barang == 'Elektronik') {
+                $barang->fill([
+                    'type' => $request->type,
+                ]);
+            }
+
+            // Simpan data ke dalam database
+            $barang->save();
         }
-
-        // Simpan data yang spesifik untuk jenis barang Elektronik
-        if ($request->jenis_barang == 'Elektronik') {
-            $barang->type = $request->type;
-        }
-
-        // Simpan data ke dalam database
-        $barang->save();
 
         // Setelah data berhasil disimpan, tampilkan pesan sukses
         return redirect('/barang')->with('status', 'Data barang berhasil disimpan!');

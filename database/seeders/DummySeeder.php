@@ -27,23 +27,21 @@ class DummySeeder extends Seeder
             [
                 'kode_barang' => 'IU7',
                 'nama_barang' => 'SARAF',
-                'qty' => 12,
                 'pengarang' => null,
                 'penerbit' => null,
                 'asal' => null,
                 'jenis_buku' => null,
-                'qty_rusak' => 0,
+                'rusak' => false,
                 'type' => null,
             ],
             [
                 'kode_barang' => 'E-001',
                 'nama_barang' => 'PRINTER',
-                'qty' => 1,
                 'pengarang' => null,
                 'penerbit' => null,
                 'asal' => null,
                 'jenis_buku' => null,
-                'qty_rusak' => 0,
+                'rusak' => false,
                 'type' => 'EPSON',
             ]
         ]);

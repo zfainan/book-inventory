@@ -33,7 +33,7 @@
                 <option value="">Pilih Nama Barang</option>
 
                 @foreach ($data as $item)
-                    <option value="{{ $item->id }}">{{ $item->nama_barang }} ({{ $item->qty }})</option>
+                    <option value="{{ $item->id }}">{{ $item->inventory_code }} - {{ $item->nama_barang }}</option>
                 @endforeach
             </select>
             @error('id_barang')

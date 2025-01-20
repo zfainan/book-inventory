@@ -17,14 +17,14 @@ return new class extends Migration
             $table->id();
             $table->string('kode_barang');
             $table->string('nama_barang');
-            $table->integer('qty');
+            $table->integer('serial_number')->nullable();
 
             // Buku
             $table->string('pengarang')->nullable();
             $table->string('penerbit')->nullable();
             $table->enum('asal', ['Hadiah', 'Beli', 'Lain-lain'])->nullable();
             $table->enum('jenis_buku', ['Sastra', 'RPL', 'Akutansi', 'Farmasi', 'Bacaan'])->nullable();
-            $table->integer('qty_rusak')->default(0);
+            $table->boolean('rusak')->default(false);
 
             // Elektronik
             $table->string('type')->nullable();
