@@ -7,7 +7,6 @@ use App\Models\Peminjam;
 use App\Models\Peminjaman;
 use App\Models\Pengembalian;
 use App\Models\Pengajuan;
-use Illuminate\Support\Facades\DB;
 
 class KepalaController extends Controller
 {
@@ -18,9 +17,9 @@ class KepalaController extends Controller
         $pengembalian = Pengembalian::all();
         $peminjam = Peminjam::all();
         $pengajuan = Pengajuan::all();
-        $totalBarang = DB::table('barang')->count();
-        $totalAcc = DB::table('pengajuan')->where('status', 'ACC')->count();
-        $totalPr = DB::table('pengajuan')->where('status', 'Proses')->count();
+        $totalBarang = Barang::count();
+        $totalAcc = Pengajuan::where('status', 'ACC')->count();
+        $totalPr = Pengajuan::where('status', 'Proses')->count();
 
         return view('dashboardkepala.index', compact(
             'barang',
