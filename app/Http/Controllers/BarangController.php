@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use Illuminate\Http\Request;
-use RealRashid\SweetAlert\Facades\Alert;
-use Illuminate\Support\Facades\Redirect;
 
 class BarangController extends Controller
 {
@@ -39,7 +37,7 @@ class BarangController extends Controller
     public function store(Request $request)
     {
         // Validasi data yang diterima dari form
-        $validated = $request->validate([
+        $request->validate([
             'kode_barang' => 'required|string|max:255|unique:barang',
             'nama_barang' => 'required|string|max:255',
             'qty' => 'required|integer|min:1',
@@ -48,32 +46,32 @@ class BarangController extends Controller
             'jenis_buku' => 'nullable|string|max:255',
             'type' => 'nullable|string|max:255',
         ]);
-    
+
         // Simpan data ke tabel barang
         $barang = new Barang();
         $barang->kode_barang = $request->kode_barang;
         $barang->nama_barang = $request->nama_barang;
         $barang->qty = $request->qty;
-    
+
         // Simpan data yang spesifik untuk jenis barang Buku
         if ($request->jenis_barang == 'Buku') {
             $barang->pengarang = $request->pengarang;
             $barang->penerbit = $request->penerbit;
             $barang->jenis_buku = $request->jenis_buku;
         }
-    
+
         // Simpan data yang spesifik untuk jenis barang Elektronik
         if ($request->jenis_barang == 'Elektronik') {
             $barang->type = $request->type;
         }
-    
+
         // Simpan data ke dalam database
         $barang->save();
-    
+
         // Setelah data berhasil disimpan, tampilkan pesan sukses
         return redirect('/barang')->with('status', 'Data barang berhasil disimpan!');
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -94,9 +92,9 @@ class BarangController extends Controller
      */
     public function edit(Barang $barang)
     {
-    return view('barang.edit',[
-        'barang' => $barang
-    ]);
+        return view('barang.edit', [
+            'barang' => $barang
+        ]);
     }
 
     /**
@@ -108,15 +106,15 @@ class BarangController extends Controller
      */
     public function update(Request $request, Barang $barang)
     {
-       
-        $this->validate($request,[
+
+        $this->validate($request, [
             'nama_barang' => 'required',
             'pengarang' => 'required',
             'penerbit' => 'required',
             'qty' => 'required|numeric',
             'asal' => 'required',
             'jenis_buku' => 'required',
-        ],[
+        ], [
             'kode_barang.unique' => 'Kode barang sudah ada tolong cek kembali',
             'nama_barang.required' => 'Nama Barang wajib di isi',
             'pengarang.required' => 'Nama Pengarang wajib di isi',
@@ -125,8 +123,8 @@ class BarangController extends Controller
             'asal.required' => 'Asal wajib di isi',
             'jenis_buku.required' => 'Jenis Buku wajib di isi',
         ]);
-       
-        $rules=[
+
+        $rules = [
             'nama_barang' => 'required',
             'pengarang' => 'required',
             'penerbit' => 'required',
@@ -135,16 +133,16 @@ class BarangController extends Controller
             'jenis_buku' => 'required',
         ];
 
-        if($request->kode_barang != $barang->kode_barang){
-            $rules['kode_barang'] = 'required|unique:barang|max:50';    
+        if ($request->kode_barang != $barang->kode_barang) {
+            $rules['kode_barang'] = 'required|unique:barang|max:50';
         }
 
         $validateData = $request->validate($rules);
 
         Barang::where('id', $barang->id)
-        ->update($validateData);
+            ->update($validateData);
 
-        return Redirect('/barang')->with('success', 'Data berhasil diupdate !');    
+        return Redirect('/barang')->with('success', 'Data berhasil diupdate !');
     }
 
     /**
@@ -153,12 +151,11 @@ class BarangController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy( $id)
+    public function destroy($id)
     {
         $barang = Barang::find($id);
         $barang->delete();
 
-        return redirect('/barang')->with('succes','Data Berhasil di hapus!');
+        return redirect('/barang')->with('succes', 'Data Berhasil di hapus!');
     }
-
 }

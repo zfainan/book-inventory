@@ -8,14 +8,11 @@ use App\Models\Peminjaman;
 use App\Models\Pengembalian;
 use App\Models\Pengajuan;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
-use App\Models\users;
-use Illuminate\Http\Request;
 
 class KepalaController extends Controller
 {
-    //index
-    function index(){
+    public function index()
+    {
         $barang = Barang::all();
         $peminjaman = Peminjaman::all();
         $pengembalian = Pengembalian::all();
@@ -24,6 +21,16 @@ class KepalaController extends Controller
         $totalBarang = DB::table('barang')->count();
         $totalAcc = DB::table('pengajuan')->where('status', 'ACC')->count();
         $totalPr = DB::table('pengajuan')->where('status', 'Proses')->count();
-        return view('dashboardkepala.index', compact('barang','peminjaman','pengembalian','peminjam','pengajuan','totalBarang', 'totalAcc', 'totalPr'));
+
+        return view('dashboardkepala.index', compact(
+            'barang',
+            'peminjaman',
+            'pengembalian',
+            'peminjam',
+            'pengajuan',
+            'totalBarang',
+            'totalAcc',
+            'totalPr'
+        ));
     }
 }

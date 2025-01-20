@@ -39,8 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/sesi/logout', [SessionController::class, 'logout']);
 
     Route::redirect('/home', '/dashboard');
-    Route::resource('/dashboard', DashboardController::class);
-    Route::resource('/dashboardkepala', KepalaController::class,);
+    Route::resource('/dashboard', DashboardController::class)->only('index');
+    Route::resource('/dashboardkepala', KepalaController::class)->only('index');
     Route::resource('/barang', BarangController::class);
     Route::resource('/barangkepala', BrgKepalaController::class);
     Route::delete('barang/destroy/{id}', [BarangController::class, 'destroy'])
