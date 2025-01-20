@@ -10,11 +10,11 @@ class Peminjam extends Model
     use HasFactory;
 
     protected $table = 'peminjam';
+
     protected $fillable = [
         'email',
         'nama',
         'no_wa',
-        'kelas',
         'alamat',
     ];
 }

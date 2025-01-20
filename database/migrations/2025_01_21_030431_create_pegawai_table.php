@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('peminjam', function (Blueprint $table) {
+        Schema::create('pegawai', function (Blueprint $table) {
             $table->id();
-            $table->string('email')->unique();
-            $table->string('nama');
-            $table->string('no_wa');
-            $table->string('kelas');
-            $table->string('alamat');
+            $table->string('nama_pegawai')->nullable();
+            $table->string('nip', 45)->nullable();
+            $table->text('alamat')->nullable();
+            $table->integer('status');
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('peminjams');
+        Schema::dropIfExists('pegawai');
     }
 };

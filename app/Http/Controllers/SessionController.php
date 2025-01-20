@@ -32,16 +32,12 @@ class SessionController extends Controller
             $user = Auth::user();
 
             // Periksa id_role
-            if ($user->id_role == 1) {
-                return redirect('dashboard')->with('success', 'SELAMAT DATANG ADMIN :)');
-            } elseif ($user->id_role == 2) {
-                return redirect('dashboardkepala')->with('success', 'SELAMAT DATANG KEPALA SEKOLAH :)');
-            } elseif ($user->id_role == 3) {
-                return redirect('dashboardkepala')->with('success', 'SELAMAT PETUGAS PERPUS :)');
-            } else {
-                // Jika ada role lain
-                return redirect('sesi')->withErrors(['Error' => 'Role tidak dikenali'])->withInput();
-            }
+            return match ($user->role->role) {
+                'Admin' => redirect('dashboard')->with('success', 'SELAMAT DATANG ADMIN :)'),
+                'Kepala' => redirect('dashboardkepala')->with('success', 'SELAMAT DATANG KEPALA SEKOLAH :)'),
+                'Peminjam' => redirect('dashboardkepala')->with('success', 'SELAMAT PETUGAS PERPUS :)'),
+                default => redirect('sesi')->withErrors(['Error' => 'Role tidak dikenali'])->withInput(),
+            };
         } else {
             return redirect('sesi')->withErrors(['Error' => 'Username atau password salah, tolong cek kembali !'])->withInput();
         }

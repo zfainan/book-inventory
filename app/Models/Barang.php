@@ -15,12 +15,13 @@ class Barang extends Model
     protected $fillable = [
         'kode_barang',
         'nama_barang',
+        'qty',
         'pengarang',
         'penerbit',
-        'qty_rusak',
-        'qty',
         'asal',
-        'jenis_buku'
+        'jenis_buku',
+        'qty_rusak',
+        'type',
     ];
 
     public function peminjaman(): HasOne

@@ -8,22 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Pengembalian extends Model
 {
     use HasFactory;
+
     protected $table = 'pengembalian';
+
     protected $fillable = [
         'nama_peminjam',
         'nama_barang',
         'jumlah_pinjam',
         'satuan',
         'tgl_pinjam',
-        'tgl_kembali',
+        'Kondisi',
         'keperluan'
     ];
-
-    public function peminjaman(){
-        return $this->hasOne(peminjaman::class);
-    }
-
-    public function barang(){
-        return $this->belongsTo(Barang::class);
-    }
 }
