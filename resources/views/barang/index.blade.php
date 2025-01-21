@@ -26,7 +26,7 @@
                     <th scope="col">PENERBIT</th>
                     <th scope="col">ASAL</th>
                     <th scope="col">JENIS BUKU</th>
-                    <th scope="col">Type</th>
+                    <th scope="col">TYPE</th>
                     @can('admin')
                         <th scope="col">AKSI</th>
                     @endcan

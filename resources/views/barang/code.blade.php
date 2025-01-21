@@ -29,6 +29,15 @@
             </div>
         </div>
 
+        <div class="col-lg-3 col-6">
+            <div class="card">
+                <div class="card-body">
+                    <p class="mb-0">Tahun Pengadaan</p>
+                    <h5>{{ $buku->created_at?->format('Y') ?? '-' }}</h5>
+                </div>
+            </div>
+        </div>
+
         @if ($buku->pengarang)
             <div class="col-lg-3 col-6">
                 <div class="card">
@@ -181,7 +190,8 @@
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="rusak" id="not_oke" value="1">
+                            <input class="form-check-input" type="radio" name="rusak" id="not_oke"
+                                value="1">
                             <label class="form-check-label" for="not_oke">
                                 Rusak
                             </label>

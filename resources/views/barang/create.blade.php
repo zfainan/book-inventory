@@ -124,6 +124,23 @@
             @enderror
         </div>
 
+        <!-- Dropdown untuk Asal -->
+        <div class="mb-3">
+            <label for="asal" class="col-form-label">Asal:</label>
+            <select class="form-control @error('asal') is-invalid @enderror" name="asal" id="asal">
+                <option value="">-- Pilih Asal --</option>
+                <option value="Hadiah" {{ old('asal') == 'Hadiah' ? 'selected' : '' }}>Hadiah</option>
+                <option value="Beli" {{ old('asal') == 'Beli' ? 'selected' : '' }}>Beli</option>
+                <option value="Lain-lain" {{ old('asal') == 'Lain-lain' ? 'selected' : '' }}>Lain-lain
+                </option>
+            </select>
+            @error('asal')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+
         <!-- Tombol Aksi -->
         <div class="modal-footer">
             <a href="/barang" type="button" class="btn btn-secondary">Close</a>

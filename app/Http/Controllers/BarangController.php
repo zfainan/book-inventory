@@ -27,6 +27,7 @@ class BarangController extends Controller
                 'type',
                 DB::raw('COUNT(*) as qty')
             )
+            ->orderBy('kode_barang')
             ->get();
 
         return view('barang.index', compact('data'));
@@ -72,6 +73,7 @@ class BarangController extends Controller
             'penerbit' => 'nullable|string|max:255',
             'jenis_buku' => 'nullable|string|max:255',
             'type' => 'nullable|string|max:255',
+            'asal' => 'nullable|string|in:Hadiah,Beli,Lain-lain',
         ]);
 
         // Simpan data ke tabel barang
@@ -80,6 +82,7 @@ class BarangController extends Controller
             $barang->fill([
                 'kode_barang' => $request->kode_barang,
                 'nama_barang' => $request->nama_barang,
+                'asal' => $request->asal,
                 'qty' => 0,
                 'serial_number' => $request->integer('qty') > 1 ? $i : null,
             ]);
@@ -140,7 +143,7 @@ class BarangController extends Controller
     {
         $barang->delete();
 
-        return redirect()->back()->with('success', 'Data Berhasil di hapus!');
+        return redirect(route('barang.index'))->with('success', 'Data Berhasil di hapus!');
     }
 
     public function bulkEdit(string $code)
